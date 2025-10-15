@@ -4,7 +4,9 @@ plugins {
 }
 
 android {
-    compileSdkVersion 33  // still ok for building
+    namespace "com.termux"
+    compileSdkVersion 33
+
     defaultConfig {
         applicationId "com.termux"
         minSdkVersion 21
@@ -22,32 +24,44 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        debug {
+            minifyEnabled false
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+        }
     }
 
-    namespace "com.termux"
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = "11"
+    }
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.22"
     implementation 'androidx.core:core:1.13.0'
-    implementation 'androidx.appcompat:appcompat:1.5.1'  // compatible with API 23
+    implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.5.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 }
 
-// Disabled bootstrap download to avoid missing script errors
-// task downloadBootstrap(type: Exec) {
-//     workingDir './scripts'
-//     commandLine 'sh', 'bootstrap_download.sh'
-// }
+/*
+ * Bootstrap downloading disabled — we’re now using manual chooser inside the app.
+ * The build should no longer depend on any external shell scripts.
+ */
 
-tasks.whenTaskAdded { task ->
-    if (task.name == 'downloadBootstrap') {
-        task.enabled = false
+// Remove the dependency on the missing downloadBootstrap task
+tasks.matching { it.name == "preBuild" }.configureEach {
+    doFirst {
+        println("Skipping bootstrap download (manual bootstrap enabled)")
     }
 }
-preBuild.dependsOn downloadBootstrap
 
-/* task clean(type: Delete) {
+/* Optional clean task */
+tasks.register("clean", Delete) {
     delete rootProject.buildDir
-} */
+}
