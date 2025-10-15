@@ -10,22 +10,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Setup Java
-        uses: actions/setup-java@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      - name: Build APK
-        run: |
-          chmod +x ./gradlew
-          ./gradlew assembleDebug
+      - name: Grant execute permission for Gradlew
+        run: chmod +x gradlew
 
-      - name: Upload APK
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
+
+      - name: Upload built APK
         uses: actions/upload-artifact@v4
         with:
-          name: termux-debug-apk
+          name: Termux-Debug-APK
           path: app/build/outputs/apk/debug/app-debug.apk
