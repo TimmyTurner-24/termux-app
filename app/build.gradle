@@ -6,11 +6,10 @@ plugins {
 }
 
 android {
-    compileSdkVersion 33
-
+    compileSdkVersion 33   // stable for AGP 4.2.2
     defaultConfig {
         applicationId "com.termux"
-        minSdkVersion 23          // updated for Android 6
+        minSdkVersion 23    // Android 6 (armv7l)
         targetSdkVersion 33
         versionCode 118
         versionName "0.118.0"
@@ -46,33 +45,34 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.12.0'
-    implementation 'androidx.appcompat:appcompat:1.7.0'
+    // Downgraded libs for SDK 33 + AGP 4.2.2 compatibility
+    implementation 'androidx.core:core-ktx:1.10.1'
+    implementation 'androidx.annotation:annotation-experimental:1.3.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.preference:preference-ktx:1.2.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.2'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
     implementation 'androidx.recyclerview:recyclerview:1.3.1'
-    implementation 'androidx.viewpager2:viewpager2:1.1.0-beta02'
+    implementation 'androidx.viewpager2:viewpager2:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.documentfile:documentfile:1.0.1'
 }
 
 // ==============================
-// CI-ready Bootstrap for armv7l
-// Downloads from SourceForge and ensures directory exists
+// CI-ready Bootstrap for armv7l (offline/auto)
 // ==============================
 task copyBootstraps(type: Copy) {
     def bootstrapDir = file("$buildDir/termux-bootstrap")
     def bootstrapFile = file("$bootstrapDir/bootstrap-arm.zip")
 
-    // Create parent directory if missing
+    // ensure directory exists
     if (!bootstrapDir.exists()) {
         bootstrapDir.mkdirs()
     }
 
-    // Download bootstrap if missing
+    // download if missing
     if (!bootstrapFile.exists()) {
         println "Downloading bootstrap for CI..."
         def url = "https://downloads.sourceforge.net/project/termux-packages.mirror/bootstrap-2025.10.12-r1%2Bapt.android-7/bootstrap-arm.zip"
@@ -87,10 +87,11 @@ task copyBootstraps(type: Copy) {
     }
 }
 
+// make sure bootstrap runs before build
 preBuild.dependsOn(copyBootstraps)
 
 task downloadBootstraps {
     doLast {
-        println "Bootstrap handled by CI download. Skipping network download."
+        println "Bootstrap handled by CI download. Skipping extra download."
     }
 }
