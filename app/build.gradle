@@ -2,7 +2,7 @@ import java.security.MessageDigest
 
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android' // version is now inherited from buildscript classpath
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.termux"
-        minSdkVersion 24
+        minSdkVersion 21
         targetSdkVersion 33
         versionCode 118
         versionName "0.118.0"
@@ -60,16 +60,27 @@ dependencies {
 }
 
 // ==============================
-// Disabled bootstrap downloading for offline builds
+// CI-ready Bootstrap for armv7l
+// Downloads from SourceForge if missing
 // ==============================
-task downloadBootstraps {
+task copyBootstraps(type: Copy) {
+    def bootstrapFile = file("$buildDir/termux-bootstrap/bootstrap-arm.zip")
+    if (!bootstrapFile.exists()) {
+        println "Downloading bootstrap for CI..."
+        def url = "https://downloads.sourceforge.net/project/termux-packages.mirror/bootstrap-2025.10.12-r1%2Bapt.android-7/bootstrap-arm.zip"
+        new URL(url).withInputStream { i -> bootstrapFile.withOutputStream { it << i } }
+    }
+    from(bootstrapFile)
+    into("$buildDir/termux-bootstrap")
     doLast {
-        println "Skipping bootstrap download for custom Termux build (offline mode)."
+        println "Bootstrap ready for armv7l"
     }
 }
 
-afterEvaluate {
-    android.applicationVariants.all { variant ->
-        println "Bootstrap download disabled for variant: ${variant.name}"
+preBuild.dependsOn(copyBootstraps)
+
+task downloadBootstraps {
+    doLast {
+        println "Bootstrap handled by CI download. Skipping network download."
     }
 }
