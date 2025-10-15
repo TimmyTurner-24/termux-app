@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.termux"
-        minSdkVersion 21
+        minSdkVersion 23          // updated for Android 6
         targetSdkVersion 33
         versionCode 118
         versionName "0.118.0"
@@ -61,17 +61,27 @@ dependencies {
 
 // ==============================
 // CI-ready Bootstrap for armv7l
-// Downloads from SourceForge if missing
+// Downloads from SourceForge and ensures directory exists
 // ==============================
 task copyBootstraps(type: Copy) {
-    def bootstrapFile = file("$buildDir/termux-bootstrap/bootstrap-arm.zip")
+    def bootstrapDir = file("$buildDir/termux-bootstrap")
+    def bootstrapFile = file("$bootstrapDir/bootstrap-arm.zip")
+
+    // Create parent directory if missing
+    if (!bootstrapDir.exists()) {
+        bootstrapDir.mkdirs()
+    }
+
+    // Download bootstrap if missing
     if (!bootstrapFile.exists()) {
         println "Downloading bootstrap for CI..."
         def url = "https://downloads.sourceforge.net/project/termux-packages.mirror/bootstrap-2025.10.12-r1%2Bapt.android-7/bootstrap-arm.zip"
-        new URL(url).withInputStream { i -> bootstrapFile.withOutputStream { it << i } }
+        ant.get(src: url, dest: bootstrapFile)
     }
+
     from(bootstrapFile)
-    into("$buildDir/termux-bootstrap")
+    into(bootstrapDir)
+
     doLast {
         println "Bootstrap ready for armv7l"
     }
