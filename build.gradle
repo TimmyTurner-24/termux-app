@@ -23,6 +23,8 @@ allprojects {
 }
 
 // Clean task
-task clean(type: Delete) {
-    delete rootProject.buildDir
+tasks.named("clean") {
+    doFirst {
+        println("Using default Gradle clean task")
+    }
 }
