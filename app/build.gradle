@@ -2,7 +2,7 @@ import java.security.MessageDigest
 
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.kotlin.android' // version is now inherited from buildscript classpath
 }
 
 android {
@@ -60,7 +60,7 @@ dependencies {
 }
 
 // ==============================
-// Disabled bootstrap downloading for GitHub Actions
+// Disabled bootstrap downloading for offline builds
 // ==============================
 task downloadBootstraps {
     doLast {
