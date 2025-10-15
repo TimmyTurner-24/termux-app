@@ -1,5 +1,7 @@
 package com.termux.app;
 
+import android.content.Intent;
+import android.widget.Toast;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
