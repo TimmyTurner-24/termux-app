@@ -27,8 +27,13 @@ jobs:
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace
 
+      - name: Rename APK to Termux-armv7.apk
+        run: |
+          cd app/build/outputs/apk/debug
+          mv *.apk Termux.apk
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Termux-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          name: Termux
+          path: app/build/outputs/apk/debug/Termux.apk
