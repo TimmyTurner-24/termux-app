@@ -1,4 +1,4 @@
-// Top-level build.gradle
+// Root-level build.gradle
 
 buildscript {
     repositories {
@@ -7,9 +7,7 @@ buildscript {
         maven { url "https://jitpack.io" }
     }
     dependencies {
-        // Updated Android Gradle plugin to fix StackOverflow & SDK issues
-        classpath "com.android.tools.build:gradle:7.4.2"
-        // Kotlin plugin required by app module
+        classpath "com.android.tools.build:gradle:7.2.1"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.22"
     }
 }
@@ -22,9 +20,11 @@ allprojects {
     }
 }
 
-// Clean task
-tasks.named("clean") {
-    doFirst {
-        println("Using default Gradle clean task")
+// Define a clean task safely if it doesn’t exist
+gradle.startParameter.taskNames.each { taskName ->
+    if (taskName == "clean") {
+        tasks.register("clean", Delete) {
+            delete rootProject.buildDir
+        }
     }
 }
