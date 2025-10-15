@@ -61,30 +61,50 @@ final class TermuxInstaller {
 
     private static final String LOG_TAG = "TermuxInstaller";
 
-    /** Performs bootstrap setup if necessary. */
-    static void setupBootstrapIfNeeded(final Activity activity, final Runnable whenDone) {
-        String bootstrapErrorMessage;
-        Error filesDirectoryAccessibleError;
+    public static void setupBootstrapIfNeeded(final Activity activity, final Runnable whenDone) {
+    String bootstrapErrorMessage;
+    Error filesDirectoryAccessibleError;
 
-        // This will also call Context.getFilesDir(), which should ensure that termux files directory
-        // is created if it does not already exist
-        filesDirectoryAccessibleError = TermuxFileUtils.isTermuxFilesDirectoryAccessible(activity, true, true);
-        boolean isFilesDirectoryAccessible = filesDirectoryAccessibleError == null;
+    // Verify Termux files directory
+    filesDirectoryAccessibleError = TermuxFileUtils.isTermuxFilesDirectoryAccessible(activity, true, true);
+    boolean isFilesDirectoryAccessible = filesDirectoryAccessibleError == null;
 
-        // Termux can only be run as the primary user (device owner) since only that
-        // account has the expected file system paths. Verify that:
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !PackageUtils.isCurrentUserThePrimaryUser(activity)) {
-            bootstrapErrorMessage = activity.getString(R.string.bootstrap_error_not_primary_user_message,
-                MarkdownUtils.getMarkdownCodeForString(TERMUX_PREFIX_DIR_PATH, false));
-            Logger.logError(LOG_TAG, "isFilesDirectoryAccessible: " + isFilesDirectoryAccessible);
-            Logger.logError(LOG_TAG, bootstrapErrorMessage);
-            sendBootstrapCrashReportNotification(activity, bootstrapErrorMessage);
-            MessageDialogUtils.exitAppWithErrorMessage(activity,
-                activity.getString(R.string.bootstrap_error_title),
-                bootstrapErrorMessage);
+    if (!isFilesDirectoryAccessible) {
+        bootstrapErrorMessage = Error.getMinimalErrorString(filesDirectoryAccessibleError);
+        Logger.logError(LOG_TAG, bootstrapErrorMessage);
+        MessageDialogUtils.showMessage(activity,
+            activity.getString(R.string.bootstrap_error_title),
+            bootstrapErrorMessage, null);
+        return;
+    }
+
+    // If bootstrap already installed
+    File prefixDir = new File(TERMUX_PREFIX_DIR_PATH);
+    if (prefixDir.exists() && prefixDir.isDirectory()) {
+        if (!TermuxFileUtils.isTermuxPrefixDirectoryEmpty()) {
+            whenDone.run();
             return;
+        } else {
+            Logger.logInfo(LOG_TAG, "Prefix directory exists but is empty, user will be asked to choose bootstrap manually.");
         }
+    }
 
+    // Instead of downloading, open local bootstrap chooser
+    activity.runOnUiThread(() -> {
+        try {
+            Toast.makeText(activity, "Bootstrap not found — select your local bootstrap archive to continue.", Toast.LENGTH_LONG).show();
+            Intent chooserIntent = new Intent(activity, BootstrapChooser.class);
+            chooserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            activity.startActivity(chooserIntent);
+        } catch (Exception e) {
+            Logger.logError(LOG_TAG, "Failed to start BootstrapChooser: " + e.getMessage());
+            MessageDialogUtils.showMessage(activity,
+                "Bootstrap Error",
+                "Could not launch BootstrapChooser: " + e.getMessage(),
+                null);
+        }
+    });
+                                       }
         if (!isFilesDirectoryAccessible) {
             bootstrapErrorMessage = Error.getMinimalErrorString(filesDirectoryAccessibleError);
             //noinspection SdCardPath
