@@ -1,20 +1,19 @@
-import java.security.MessageDigest
-
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-android'
 }
 
 android {
-    compileSdkVersion 33   // stable for AGP 4.2.2
+    compileSdkVersion 33  // still ok for building
     defaultConfig {
         applicationId "com.termux"
-        minSdkVersion 23    // Android 6 (armv7l)
-        targetSdkVersion 33
-        versionCode 118
-        versionName "0.118.0"
-        multiDexEnabled true
+        minSdkVersion 21
+        targetSdkVersion 23
+        versionCode 1
+        versionName "0.117"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
+        // Manifest placeholder for RUN_COMMAND
         manifestPlaceholders = [TERMUX_PACKAGE_NAME: "com.termux"]
     }
 
@@ -23,77 +22,25 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-        debug {
-            debuggable true
-        }
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
-    }
-
-    kotlinOptions {
-        jvmTarget = '11'
-    }
-
-    packagingOptions {
-        jniLibs {
-            useLegacyPackaging true
-        }
-    }
-
-    namespace 'com.termux'
+    namespace "com.termux"
 }
 
 dependencies {
-    // Downgraded libs for SDK 33 + AGP 4.2.2 compatibility
-    implementation 'androidx.core:core-ktx:1.10.1'
-    implementation 'androidx.annotation:annotation-experimental:1.3.1'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.9.0'
-    implementation 'androidx.preference:preference-ktx:1.2.1'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.2'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
-    implementation 'androidx.recyclerview:recyclerview:1.3.1'
-    implementation 'androidx.viewpager2:viewpager2:1.0.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.22"
+    implementation 'androidx.core:core:1.13.0'
+    implementation 'androidx.appcompat:appcompat:1.5.1'  // compatible with API 23
+    implementation 'com.google.android.material:material:1.5.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.documentfile:documentfile:1.0.1'
 }
 
-// ==============================
-// CI-ready Bootstrap for armv7l (offline/auto)
-// ==============================
-task copyBootstraps(type: Copy) {
-    def bootstrapDir = file("$buildDir/termux-bootstrap")
-    def bootstrapFile = file("$bootstrapDir/bootstrap-arm.zip")
-
-    // ensure directory exists
-    if (!bootstrapDir.exists()) {
-        bootstrapDir.mkdirs()
-    }
-
-    // download if missing
-    if (!bootstrapFile.exists()) {
-        println "Downloading bootstrap for CI..."
-        def url = "https://downloads.sourceforge.net/project/termux-packages.mirror/bootstrap-2025.10.12-r1%2Bapt.android-7/bootstrap-arm.zip"
-        ant.get(src: url, dest: bootstrapFile)
-    }
-
-    from(bootstrapFile)
-    into(bootstrapDir)
-
-    doLast {
-        println "Bootstrap ready for armv7l"
-    }
+// Bootstrap download for CI
+task downloadBootstrap(type: Exec) {
+    commandLine 'sh', './scripts/bootstrap_download.sh', 'arm'
 }
+preBuild.dependsOn downloadBootstrap
 
-// make sure bootstrap runs before build
-preBuild.dependsOn(copyBootstraps)
-
-task downloadBootstraps {
-    doLast {
-        println "Bootstrap handled by CI download. Skipping extra download."
-    }
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }
