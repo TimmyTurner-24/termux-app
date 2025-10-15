@@ -214,16 +214,17 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_termux);
+setContentView(R.layout.activity_termux);
 
-        // Load termux shared preferences
-        // This will also fail if TermuxConstants.TERMUX_PACKAGE_NAME does not equal applicationId
-        mPreferences = TermuxAppSharedPreferences.build(this, true);
-        if (mPreferences == null) {
-            // An AlertDialog should have shown to kill the app, so we don't continue running activity code
-            mIsInvalidState = true;
-            return;
-        }
+// Bootstrap environment check — redirect to BootstrapChooser if Termux base files are missing
+File prefixDir = new File(getFilesDir(), "usr");
+if (!prefixDir.exists() || prefixDir.list() == null || prefixDir.list().length == 0) {
+    Intent i = new Intent(this, BootstrapChooser.class);
+    startActivity(i);
+}
+
+// Load termux shared preferences
+mPreferences = TermuxAppSharedPreferences.build(this, true);
 
         setMargins();
 
