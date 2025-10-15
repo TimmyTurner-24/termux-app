@@ -105,26 +105,15 @@ clean {
 }
 
 task downloadBootstraps() {
+// Disabled bootstrap downloading for custom build
+task downloadBootstraps() {
     doLast {
-        def packageVariant = project.ext.packageVariant ?: "apt-android-5"
-        def version = "2022.04.28-r6+" + packageVariant
-
-        println("📦 Building for packageVariant: " + packageVariant)
-        println("🧩 Using ARMv7 bootstrap only")
-
-        // Only ARMv7 build required for your Samsung SM-G901F (32-bit)
-        downloadBootstrap(
-            "arm",
-            "26bfb45304c946170db69108e5eb6e3641aad751406ce106c80df80cad2eccf8",
-            version
-        )
-
-        println("✅ ARMv7 bootstrap downloaded successfully")
+        println "Skipping bootstrap download for custom Termux build (offline mode)."
     }
 }
 
 afterEvaluate {
     android.applicationVariants.all { variant ->
-        variant.javaCompileProvider.get().dependsOn(downloadBootstraps)
+        println "Bootstrap download disabled for variant: ${variant.name}"
     }
 }
