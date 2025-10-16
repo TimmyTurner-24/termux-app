@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <!-- Termux-specific attributes -->
     <attr name="termuxActivityDrawerBackground" format="color|reference" />
     <attr name="termuxActivityDrawerImageTint" format="color|reference" />
 
@@ -9,11 +7,4 @@
     <attr name="extraKeysButtonActiveTextColor" format="color|reference" />
     <attr name="extraKeysButtonBackgroundColor" format="color|reference" />
     <attr name="extraKeysButtonActiveBackgroundColor" format="color|reference" />
-
-    <!-- Basic fallback colors -->
-    <color name="white">#FFFFFFFF</color>
-    <color name="black">#FF000000</color>
-    <color name="red_400">#F44336</color>
-    <color name="grey_500">#9E9E9E</color>
-
 </resources>
