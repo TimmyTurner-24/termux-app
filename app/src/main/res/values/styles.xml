@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Base themes -->
+    <!-- Base theme for Termux -->
     <style name="Theme.TermuxApp.Base" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:colorBackground">@color/white</item>
         <item name="android:textColor">@color/black</item>
@@ -10,20 +10,7 @@
         <item name="colorAccent">@color/red_400</item>
     </style>
 
-    <style name="Theme.TermuxApp.DayNight.DarkActionBar" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <item name="colorPrimary">@color/black</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <item name="colorAccent">@color/red_400</item>
-    </style>
-
-    <style name="Theme.TermuxApp.DayNight.NoActionBar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/black</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <item name="colorAccent">@color/red_400</item>
-    </style>
-
-    <style name="Theme.TermuxActivity.DayNight.NoActionBar" parent="Theme.TermuxApp.DayNight.NoActionBar" />
-
+    <!-- Markdown Activity Theme -->
     <style name="Theme.MarkdownViewActivity.DayNight" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/black</item>
         <item name="colorOnPrimary">@color/white</item>
