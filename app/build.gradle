@@ -53,15 +53,10 @@ dependencies {
  * Bootstrap downloading disabled — we’re now using manual chooser inside the app.
  * The build should no longer depend on any external shell scripts.
  */
-
-// Remove the dependency on the missing downloadBootstrap task
 tasks.matching { it.name == "preBuild" }.configureEach {
     doFirst {
         println("Skipping bootstrap download (manual bootstrap enabled)")
     }
 }
 
-/* Optional clean task */
-tasks.register("clean", Delete) {
-    delete rootProject.buildDir
-}
+// ⚠️ Removed the redundant clean task — Gradle already defines it globally
